@@ -1,6 +1,10 @@
 import pygame
 from collections import deque
 
+#IEEE Micromouse Simulator showing the flood fill algorithm solving a 8x8 grid maze. The mouse starts at the South West(row 7, column 0) and
+# The target is postion on north east (row 0, columnn 7)
+
+
 # Window and grid and color
 WINDOW_HEIGHT = 640
 WINDOW_WIDTH = 640
@@ -12,7 +16,7 @@ BLACK = (0, 0, 0)
 
 # Horizontal walls between the rows
 h_walls = [
-    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 0],
     [1, 1, 0, 1, 0, 1, 0, 0],
     [0, 1, 1, 1, 1, 0, 1, 1],
     [1, 0, 0, 0, 1, 0, 1, 0],
@@ -46,45 +50,45 @@ def floodfill(target_row, target_col):
     dq.append((target_row, target_col))
 
     while dq:
-        r, c = dq.popleft()
-        curr_dist = flood[r][c]
+        row, col = dq.popleft()
+        curr_dist = flood[row][col]
 
-        if h_walls[r][c] == 0 and r > 0 and flood[r-1][c] > curr_dist + 1:
-            flood[r-1][c] = curr_dist + 1
-            dq.append((r-1, c))
-        if h_walls[r+1][c] == 0 and r < GRID_SIZE-1 and flood[r+1][c] > curr_dist + 1:
-            flood[r+1][c] = curr_dist + 1
-            dq.append((r+1, c))
-        if v_walls[r][c] == 0 and c > 0 and flood[r][c-1] > curr_dist + 1:
-            flood[r][c-1] = curr_dist + 1
-            dq.append((r, c-1))
-        if v_walls[r][c+1] == 0 and c < GRID_SIZE-1 and flood[r][c+1] > curr_dist + 1:
-            flood[r][c+1] = curr_dist + 1
-            dq.append((r, c+1))
+        if h_walls[row][col] == 0 and row > 0 and flood[row-1][col] > curr_dist + 1:
+            flood[row-1][col] = curr_dist + 1
+            dq.append((row-1, col))
+        if h_walls[row+1][col] == 0 and row < GRID_SIZE-1 and flood[row+1][col] > curr_dist + 1:
+            flood[row+1][col] = curr_dist + 1
+            dq.append((row+1, col))
+        if v_walls[row][col] == 0 and col > 0 and flood[row][col-1] > curr_dist + 1:
+            flood[row][col-1] = curr_dist + 1
+            dq.append((row, col-1))
+        if v_walls[row][col+1] == 0 and col < GRID_SIZE-1 and flood[row][col+1] > curr_dist + 1:
+            flood[row][col+1] = curr_dist + 1
+            dq.append((row, col+1))
 
     return flood
 
-# Move mouse to lowest flood value neighbor
-def get_next_cell(r, c, flood):
+# Move mouse to lowest flood value
+def getNextcell(row, col, flood):
     best = float('inf')
-    next_r, next_c = r, c
+    next_row, next_col = row, col
 
-    if h_walls[r][c] == 0 and r > 0 and flood[r-1][c] < best:
-        best = flood[r-1][c]
-        next_r, next_c = r-1, c
-    if h_walls[r+1][c] == 0 and r < GRID_SIZE-1 and flood[r+1][c] < best:
-        best = flood[r+1][c]
-        next_r, next_c = r+1, c
-    if v_walls[r][c] == 0 and c > 0 and flood[r][c-1] < best:
-        best = flood[r][c-1]
-        next_r, next_c = r, c-1
-    if v_walls[r][c+1] == 0 and c < GRID_SIZE-1 and flood[r][c+1] < best:
-        best = flood[r][c+1]
-        next_r, next_c = r, c+1
+    if h_walls[row][col] == 0 and row > 0 and flood[row-1][col] < best:
+        best = flood[row-1][col]
+        next_row, next_col = row-1, col
+    if h_walls[row+1][col] == 0 and row < GRID_SIZE-1 and flood[row+1][col] < best:
+        best = flood[row+1][col]
+        next_row, next_col = row+1, col
+    if v_walls[row][col] == 0 and col > 0 and flood[row][col-1] < best:
+        best = flood[row][col-1]
+        next_row, next_col = row, col-1
+    if v_walls[row][col+1] == 0 and col < GRID_SIZE-1 and flood[row][col+1] < best:
+        best = flood[row][col+1]
+        next_row, next_col = row, col+1
 
-    return next_r, next_c
+    return next_row, next_col
 
-# Draw distances as numbers on black cells
+# Numerical value of the flood fill algorithm 
 def drawDistances(flood):
     font = pygame.font.Font(None, 28)
     for r in range(GRID_SIZE):
@@ -99,7 +103,7 @@ def drawDistances(flood):
                                                     r * cell_size + cell_size // 2))
             screen.blit(text_surf, text_rect)
 
-# Draw trail of visited cells
+
 def drawTrail(trail):
     for r, c in trail:
         pygame.draw.rect(screen, (50, 0, 100),
@@ -112,7 +116,6 @@ def drawMouse(r, c):
     cy = r * cell_size + cell_size // 2
     pygame.draw.circle(screen, (255, 165, 0), (cx, cy), 15)
 
-# Draw the grid and walls
 def drawGrid():
     for x in range(0, WINDOW_WIDTH, cell_size):
         for y in range(0, WINDOW_HEIGHT, cell_size):
@@ -133,7 +136,7 @@ def drawGrid():
                                  (col * cell_size, row * cell_size),
                                  (col * cell_size, (row + 1) * cell_size), 3)
 
-# Draw S and T labels
+
 def drawLabels():
     font = pygame.font.Font(None, 36)
     GREEN = (0, 255, 0)
